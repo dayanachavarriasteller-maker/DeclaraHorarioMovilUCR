@@ -65,13 +65,16 @@ class UcrStatusColors extends ThemeExtension<UcrStatusColors> {
 
 /// Tema institucional UCR (Manual de Identidad Visual, aplicaciones
 /// electrónicas): azul UCR para navegación y acciones, celeste como acento,
-/// fondos blancos y tipografía Arial (aquí Arimo, su sustituta métrica
-/// libre).
+/// fondos blancos y tipografía Trueno (la prevista para medios electrónicos),
+/// con Arimo (sustituta de Arial) solo como respaldo para símbolos.
 class UcrTheme {
   const UcrTheme._();
 
   /// Familia tipográfica declarada en pubspec.yaml.
-  static const String fontFamily = 'Arimo';
+  static const String fontFamily = 'Trueno';
+
+  /// Respaldo para caracteres que Trueno no incluye.
+  static const List<String> fontFamilyFallback = <String>['Arimo'];
 
   /// Altura mínima de los controles táctiles (Material: 48 dp).
   static const double minTouch = 48;
@@ -109,6 +112,7 @@ class UcrTheme {
       useMaterial3: true,
       colorScheme: scheme,
       fontFamily: fontFamily,
+      fontFamilyFallback: fontFamilyFallback,
       scaffoldBackgroundColor: UcrColors.fondo,
       visualDensity: VisualDensity.standard,
       materialTapTargetSize: MaterialTapTargetSize.padded,
@@ -137,6 +141,7 @@ class UcrTheme {
         centerTitle: false,
         titleTextStyle: TextStyle(
           fontFamily: fontFamily,
+          fontFamilyFallback: fontFamilyFallback,
           fontSize: 18,
           fontWeight: FontWeight.w700,
           color: UcrColors.blanco,
@@ -156,6 +161,7 @@ class UcrTheme {
           minimumSize: const Size(64, minTouch),
           textStyle: const TextStyle(
             fontFamily: fontFamily,
+            fontFamilyFallback: fontFamilyFallback,
             fontSize: 16,
             fontWeight: FontWeight.w700,
           ),
@@ -169,6 +175,7 @@ class UcrTheme {
           side: const BorderSide(color: UcrColors.azul),
           textStyle: const TextStyle(
             fontFamily: fontFamily,
+            fontFamilyFallback: fontFamilyFallback,
             fontSize: 16,
             fontWeight: FontWeight.w700,
           ),
@@ -181,6 +188,7 @@ class UcrTheme {
           foregroundColor: UcrColors.azul,
           textStyle: const TextStyle(
             fontFamily: fontFamily,
+            fontFamilyFallback: fontFamilyFallback,
             fontWeight: FontWeight.w700,
           ),
         ),
@@ -208,6 +216,7 @@ class UcrTheme {
         indicatorSize: TabBarIndicatorSize.tab,
         labelStyle: TextStyle(
           fontFamily: fontFamily,
+          fontFamilyFallback: fontFamilyFallback,
           fontWeight: FontWeight.w700,
         ),
       ),
@@ -216,6 +225,7 @@ class UcrTheme {
         backgroundColor: UcrColors.ink,
         contentTextStyle: TextStyle(
           fontFamily: fontFamily,
+          fontFamilyFallback: fontFamilyFallback,
           color: UcrColors.blanco,
           fontSize: 15,
         ),

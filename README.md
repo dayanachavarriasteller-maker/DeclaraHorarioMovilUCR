@@ -177,8 +177,8 @@ impreso (coinciden con las del PDF).
 | Paleta en `UcrColors`: Celeste #00C0F3, Azul #005DA4, Blanco #FFFFFF, Amarillo #FFE06A, Verde #6DC067 (valores RGB-web del manual, sin alterar). | Colores principales y su codificación | 28 |
 | Predominan azul, celeste y blanco; amarillo (BORRADOR) y verde (VALIDADA) solo como acento. No se usan colores secundarios. | Jerarquía de color: los principales predominan, amarillo y verde son acento | 31 |
 | Contraste comprobado: azul sobre blanco 6,8:1 para texto y botones; celeste solo como franja decorativa (2,1:1, no apto para texto); amarillo y verde siempre con texto oscuro (12,4:1 y 7,2:1). | Usar contraste adecuado para la accesibilidad de personas con discapacidad visual | 31 |
-| Tipografía Arimo (sustituta métrica de Arial, libre). | Myriad Pro y Trueno pueden sustituirse por Arial si no están disponibles | 24–25 |
-| Pendiente recomendado: cambiar a **Trueno**, que tiene licencia abierta y el manual la indica para medios electrónicos (en `pubspec.yaml` ya está la entrada comentada). | Trueno: sitios web y dispositivos electrónicos, licencia abierta | 25 |
+| Tipografía **Trueno** (Regular, SemiBold y Bold, versión 3.001b, licencia SIL OFL 1.1 incluida en `assets/fonts/Trueno-OFL.txt`), definida una sola vez en `UcrTheme.fontFamily`. | Trueno: tipografía para sitios web y dispositivos electrónicos, de licencia abierta | 24–25 |
+| Arimo (sustituta métrica de Arial) queda solo como respaldo (`fontFamilyFallback`) para símbolos que Trueno no trae. | Arial como sustitución cuando la tipografía institucional no está disponible | 24–25 |
 | Encabezado: firma a la izquierda sobre fondo blanco, con línea de 4 px debajo para separar del contenido; barra de navegación en azul UCR. | Cintillo celeste, azul o blanco; firma a la izquierda; línea de 4 px de separación; altura mínima 56 px | 117 |
 | Firma oficial horizontal en dos líneas, a color sobre fondo blanco, escalada en proporción (`BoxFit.contain`), con espacio libre alrededor. Alto de 56 dp en el encabezado y 106 dp en el inicio de sesión. | Firma horizontal en dos líneas; uso en medios digitales; firma a color sobre fondo claro; área de protección | 36, 39–40, 49 |
 | No se reconstruye ni modifica la firma: se usa el SVG oficial publicado por la OCI, convertido a PNG sin recortar ni recolorear (ver `assets/images/LEEME.txt` y `docs/identidad/`). | Firmas con proporción única e inalterable | 32–33 |
@@ -215,6 +215,10 @@ horizontales a 412 dp.
   dispositivos) → conexión por USB con `adb reverse`.
 - El teclado Samsung no dejaba escribir en el login con autocompletado activo
   → se quitaron las pistas de autocompletado.
+- Trueno no está en npm ni en Google Fonts y Font Squirrel no permite
+  descargas automáticas → se descargó a mano desde FontSpace (licencia OFL).
+  Es más ancha que Arial: se revisaron todas las pantallas a 412 dp y no hay
+  desbordes.
 - La firma oficial no está en el repositorio del original y el paquete de la OCI
   requiere cuenta institucional → se usó el SVG público de la OCI.
 - `flutter_localizations` exige `intl ^0.20`; el original pide `^0.19` →

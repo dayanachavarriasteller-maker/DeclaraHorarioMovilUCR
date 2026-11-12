@@ -43,14 +43,18 @@ flutter:
   assets:
     - assets/images/
   fonts:
-    # Sustituta métrica de Arial (Manual de Identidad Visual UCR, tipografía).
+    # Tipografía institucional para medios electrónicos (Manual de Identidad
+    # Visual UCR, p. 25). Licencia SIL OFL 1.1 (assets/fonts/Trueno-OFL.txt).
+    - family: Trueno
+      fonts:
+        - asset: assets/fonts/Trueno-Regular.otf
+        - asset: assets/fonts/Trueno-SemiBold.otf
+          weight: 600
+        - asset: assets/fonts/Trueno-Bold.otf
+          weight: 700
+    # Respaldo para símbolos que Trueno no trae (sustituta métrica de Arial).
     - family: Arimo
       fonts:
         - asset: assets/fonts/Arimo-Regular.ttf
         - asset: assets/fonts/Arimo-Bold.ttf
           weight: 700
-    # - family: Trueno
-    #   fonts:
-    #     - asset: assets/fonts/Trueno-Regular.otf
-    #     - asset: assets/fonts/Trueno-Bold.otf
-    #       weight: 700
