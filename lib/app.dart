@@ -22,7 +22,7 @@ class DeclaraHorarioMovilApp extends StatelessWidget {
         locale: const Locale('es', 'CR'),
         supportedLocales: const [Locale('es', 'CR'), Locale('es')],
         localizationsDelegates: GlobalMaterialLocalizations.delegates,
-        // Con emuladores, Firebase ya muestra su propio aviso al pie.
+        // El aviso de emuladores de Firebase se oculta en web/index.html.
         builder: (context, child) => PhoneFrame(child: child!),
         home: const _SessionGate(),
       ),

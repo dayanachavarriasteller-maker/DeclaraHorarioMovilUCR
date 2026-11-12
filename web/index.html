@@ -31,6 +31,10 @@
 
   <title>declara_horario_movil</title>
   <link rel="manifest" href="manifest.json">
+  <!-- Firebase Auth pega un aviso fijo al pie cuando se usan los emuladores
+       ("Running in emulator mode") y tapa la parte baja de la app en el
+       teléfono. Con Firebase real no aparece. -->
+  <style>.firebase-emulator-warning { display: none !important; }</style>
 </head>
 <body>
   <!--
