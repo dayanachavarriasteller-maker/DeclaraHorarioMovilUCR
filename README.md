@@ -128,22 +128,42 @@ Tomadas en Chrome a 412 × 892 dp contra los emuladores:
 | 10–13 | Horario corregido, resumen sin errores, VALIDADA e inicio con el estado (prueba 01) |
 | 14–15 | Campos obligatorios pendientes (prueba 03) |
 
-## Identidad visual (resumen de la justificación)
+## Identidad visual: justificación
 
-- **Color**: Azul UCR #005DA4 en barra de navegación, botones y títulos (6,6:1
-  sobre blanco). Celeste #00C0F3 solo como franja y acento (2,1:1, no apto para
-  texto). Amarillo #FFE06A = BORRADOR y Verde #6DC067 = VALIDADA, siempre como
-  fondo con texto oscuro. Definidos una sola vez en `UcrColors`/`UcrTheme`.
-- **Tipografía**: Arial como sustituta permitida, mediante Arimo (métricamente
-  compatible y libre). Trueno/Myriad Pro no tienen licencia libre.
-- **Firma**: solo el archivo oficial `assets/images/firma_ucr.png`, escalado
-  proporcionalmente sobre blanco; si falta, se muestra el nombre en texto (nunca
-  un logotipo reconstruido).
-- **Accesibilidad**: controles de ≥ 48 dp, etiquetas visibles, errores
-  específicos con «Corregir», semántica en estados e íconos.
+Fuente: Universidad de Costa Rica (2019). *Manual de identidad visual* (3.ª ed.).
+Oficina de Divulgación e Información. Las páginas citadas son las del manual
+impreso (coinciden con las del PDF).
 
-Páginas del manual consultadas: _completar_ (Manual de identidad visual UCR,
-3.ª ed., 2019).
+| Decisión en la app | Pauta del manual | Páginas |
+|---|---|---|
+| Paleta en `UcrColors`: Celeste #00C0F3, Azul #005DA4, Blanco #FFFFFF, Amarillo #FFE06A, Verde #6DC067 (valores RGB-web del manual, sin alterar). | Colores principales y su codificación | 28 |
+| Predominan azul, celeste y blanco; amarillo (BORRADOR) y verde (VALIDADA) solo como acento. No se usan colores secundarios. | Jerarquía de color: los principales predominan, amarillo y verde son acento | 31 |
+| Contraste comprobado: azul sobre blanco 6,8:1 para texto y botones; celeste solo como franja decorativa (2,1:1, no apto para texto); amarillo y verde siempre con texto oscuro (12,4:1 y 7,2:1). | Usar contraste adecuado para la accesibilidad de personas con discapacidad visual | 31 |
+| Tipografía Arimo (sustituta métrica de Arial, libre). | Myriad Pro y Trueno pueden sustituirse por Arial si no están disponibles | 24–25 |
+| Pendiente recomendado: cambiar a **Trueno**, que tiene licencia abierta y el manual la indica para medios electrónicos (en `pubspec.yaml` ya está la entrada comentada). | Trueno: sitios web y dispositivos electrónicos, licencia abierta | 25 |
+| Encabezado: firma a la izquierda sobre fondo blanco, con línea de 4 px debajo para separar del contenido; barra de navegación en azul UCR. | Cintillo celeste, azul o blanco; firma a la izquierda; línea de 4 px de separación; altura mínima 56 px | 117 |
+| Firma horizontal sobre fondo claro, a color, escalada en proporción (`BoxFit.contain`), con espacio libre alrededor. | Firma horizontal en una línea autorizada para medios digitales; firma a color sobre fondo claro; área de protección | 36, 40, 49 |
+| No se reconstruye la firma. Si falta el archivo oficial, se muestra solo el nombre en texto, porque no hay espacio ni archivo para el escudo. | Firmas con proporción única e inalterable; si no se respeta el tamaño mínimo (1,5 cm de escudo), usar la firma tipográfica | 32–33, 37 |
+| Diseño plano: tarjetas sin elevación, sin gradientes ni sombras decorativas. | Uso mesurado de efectos; diseños planos que prioricen el contenido | 116, 122 |
+| Controles Material de Android (botones ≥ 48 dp, selectores de fecha y hora del sistema, hoja inferior). | Botones, íconos y fondos según los lineamientos de cada sistema operativo | 122 |
+| Uso de los símbolos en un proyecto académico del curso. | El estudiantado puede usar los símbolos en proyectos dentro de actividades académicas | 60 |
+
+**Diferencias con el manual que quedan pendientes**
+
+- La p. 122 pide, en aplicaciones, la *firma promocional* a la izquierda (arriba o
+  abajo) y una pantalla de carga con la firma promocional dentro del horizonte
+  (p. 57). La app usa la firma oficial horizontal (permitida en medios digitales,
+  p. 40) y no tiene pantalla de carga propia.
+- El archivo oficial de la firma (`assets/images/firma_ucr.png`) aún no está
+  incluido. Mientras falte, el encabezado muestra el nombre en texto, que no es
+  la firma tipográfica oficial (p. 33).
+- La p. 117 recomienda que la línea de separación de 4 px sea gris; la app la
+  pone en celeste UCR como acento institucional.
+
+**Accesibilidad móvil (laboratorio §5.3)**: controles de ≥ 48 dp, etiquetas
+visibles en todos los campos, mensajes de error que dicen qué corregir y llevan al
+dato con «Corregir», etiquetas de semántica en estados e íconos, y sin desbordes
+horizontales a 412 dp.
 
 ## Dificultades
 
