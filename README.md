@@ -38,7 +38,45 @@ flutter test
 > El proyecto original solo tiene configuración Firebase para web
 > (`firebase_options.dart`), así que la app corre en Chrome. En una ventana
 > ancha se dibuja dentro de un marco de 412 × 892 dp (como un Pixel 7). Para
-> Android haría falta `flutterfire configure --platforms=android`.
+> compilarla como APK nativa haría falta `flutterfire configure --platforms=android`;
+> mientras tanto se prueba en un teléfono Android real desde su navegador
+> (siguiente sección).
+
+### Prueba en un teléfono Android (Samsung Galaxy A34)
+
+La app se probó en un **Samsung Galaxy A34 (SM-A346M)** con el teclado Samsung,
+conectado por USB a la computadora de desarrollo. Por Wi‑Fi de la universidad
+(eduroam) no funciona porque la red aísla los dispositivos entre sí, así que se
+usa `adb reverse` para que el teléfono vea los puertos de la computadora como
+propios (`localhost`):
+
+```bash
+# Con los emuladores corriendo y la depuración USB activada en el teléfono
+flutter run -d web-server --web-hostname 127.0.0.1 --web-port 8001 --dart-define=USE_EMULATORS=true
+
+# adb está en %LOCALAPPDATA%\Android\Sdk\platform-tools
+adb reverse tcp:8001 tcp:8001   # app
+adb reverse tcp:8080 tcp:8080   # Firestore
+adb reverse tcp:9099 tcp:9099   # Auth
+adb reverse tcp:9199 tcp:9199   # Storage
+```
+
+Luego se abre `http://localhost:8001` en el navegador del teléfono. Como todo
+pasa por `localhost`, no hay que cambiar la configuración de emuladores del
+proyecto original.
+
+Ajustes que salieron de esta prueba (commit `0a22960`):
+
+- **Login**: con `AutofillGroup`/`autofillHints` el teclado Samsung no dejaba
+  escribir en los campos. Se quitaron; la contraseña usa
+  `TextInputType.visiblePassword` sin sugerencias y sigue oculta.
+- **Aviso de emuladores**: Firebase muestra la franja «Running in emulator mode»
+  sobre la barra de navegación inferior; se oculta con CSS en `web/index.html`
+  (solo aparece en desarrollo).
+
+En el teléfono se recorre el flujo completo: login, crear declaración, caso
+obligatorio del traslape, corregir, guardar, reabrir el borrador, resumen y
+validar.
 
 ## Estructura
 
@@ -110,7 +148,7 @@ BORRADOR). Validar sin errores bloqueantes llama a `markValidated`.
 | 02 Horarios traslapados | `test/…` (caso obligatorio) + app |
 | 03 Datos incompletos | `test/…`; en la app los campos con `*` muestran el error y el resumen lista lo pendiente |
 | 04 Persistencia | `test/…` (ida y vuelta del modelo) + cerrar y reabrir el borrador |
-| 05 Vista móvil | Marco de 412 dp, pestañas desplazables, sin desbordes |
+| 05 Vista móvil | Samsung Galaxy A34 (Android) por USB, desde el navegador del teléfono; además marco de 412 dp en Chrome |
 
 Todas con datos ficticios (`scripts/seed-movil.js`).
 
@@ -172,7 +210,11 @@ horizontales a 412 dp.
 ## Dificultades
 
 - El original solo tiene Firebase para web → ejecución en Chrome con marco de
-  teléfono.
+  teléfono y, en un Android real, desde el navegador del teléfono.
+- En eduroam el teléfono no alcanza la computadora (aislamiento entre
+  dispositivos) → conexión por USB con `adb reverse`.
+- El teclado Samsung no dejaba escribir en el login con autocompletado activo
+  → se quitaron las pistas de autocompletado.
 - La firma oficial no está en el repositorio del original y el paquete de la OCI
   requiere cuenta institucional → se usó el SVG público de la OCI.
 - `flutter_localizations` exige `intl ^0.20`; el original pide `^0.19` →
