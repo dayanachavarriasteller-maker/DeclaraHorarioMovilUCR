@@ -10,7 +10,7 @@ import 'package:flutter/material.dart';
 /// colocado, se muestra el nombre de la institución en texto, nunca un
 /// logotipo inventado.
 class UcrSignature extends StatelessWidget {
-  const UcrSignature({super.key, this.height = 44});
+  const UcrSignature({super.key, this.height = 56});
 
   final double height;
 
@@ -45,9 +45,12 @@ class UcrSignature extends StatelessWidget {
 
 /// Encabezado institucional: firma sobre blanco + franja celeste.
 class UcrBrandBar extends StatelessWidget {
-  const UcrBrandBar({super.key, this.subtitle});
+  const UcrBrandBar({super.key, this.subtitle, this.signatureHeight = 56});
 
   final String? subtitle;
+
+  /// Alto de la firma. 56 dp es el mínimo del cintillo (manual, p. 117).
+  final double signatureHeight;
 
   @override
   Widget build(BuildContext context) {
@@ -61,7 +64,7 @@ class UcrBrandBar extends StatelessWidget {
           padding: const EdgeInsets.fromLTRB(16, 12, 16, 12),
           child: Row(
             children: [
-              const UcrSignature(),
+              UcrSignature(height: signatureHeight),
               const Spacer(),
               if (subtitle != null)
                 Flexible(

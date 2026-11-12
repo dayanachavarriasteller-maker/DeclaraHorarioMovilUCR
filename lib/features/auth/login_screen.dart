@@ -39,7 +39,7 @@ class _LoginScreenState extends State<LoginScreen> {
       body: SafeArea(
         child: Column(
           children: [
-            const UcrBrandBar(subtitle: 'Sede del Sur'),
+            const UcrBrandBar(subtitle: 'Sede del Sur', signatureHeight: 84),
             Expanded(
               child: SingleChildScrollView(
                 padding: const EdgeInsets.fromLTRB(24, 32, 24, 24),

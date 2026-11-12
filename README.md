@@ -142,8 +142,8 @@ impreso (coinciden con las del PDF).
 | Tipografía Arimo (sustituta métrica de Arial, libre). | Myriad Pro y Trueno pueden sustituirse por Arial si no están disponibles | 24–25 |
 | Pendiente recomendado: cambiar a **Trueno**, que tiene licencia abierta y el manual la indica para medios electrónicos (en `pubspec.yaml` ya está la entrada comentada). | Trueno: sitios web y dispositivos electrónicos, licencia abierta | 25 |
 | Encabezado: firma a la izquierda sobre fondo blanco, con línea de 4 px debajo para separar del contenido; barra de navegación en azul UCR. | Cintillo celeste, azul o blanco; firma a la izquierda; línea de 4 px de separación; altura mínima 56 px | 117 |
-| Firma horizontal sobre fondo claro, a color, escalada en proporción (`BoxFit.contain`), con espacio libre alrededor. | Firma horizontal en una línea autorizada para medios digitales; firma a color sobre fondo claro; área de protección | 36, 40, 49 |
-| No se reconstruye la firma. Si falta el archivo oficial, se muestra solo el nombre en texto, porque no hay espacio ni archivo para el escudo. | Firmas con proporción única e inalterable; si no se respeta el tamaño mínimo (1,5 cm de escudo), usar la firma tipográfica | 32–33, 37 |
+| Firma oficial horizontal en dos líneas, a color sobre fondo blanco, escalada en proporción (`BoxFit.contain`), con espacio libre alrededor. Alto de 56 dp en el encabezado y 84 dp en el inicio de sesión. | Firma horizontal en dos líneas; uso en medios digitales; firma a color sobre fondo claro; área de protección | 36, 39–40, 49 |
+| No se reconstruye ni modifica la firma: se usa el SVG oficial publicado por la OCI, convertido a PNG sin recortar ni recolorear (ver `assets/images/LEEME.txt` y `docs/identidad/`). | Firmas con proporción única e inalterable | 32–33 |
 | Diseño plano: tarjetas sin elevación, sin gradientes ni sombras decorativas. | Uso mesurado de efectos; diseños planos que prioricen el contenido | 116, 122 |
 | Controles Material de Android (botones ≥ 48 dp, selectores de fecha y hora del sistema, hoja inferior). | Botones, íconos y fondos según los lineamientos de cada sistema operativo | 122 |
 | Uso de los símbolos en un proyecto académico del curso. | El estudiantado puede usar los símbolos en proyectos dentro de actividades académicas | 60 |
@@ -153,10 +153,12 @@ impreso (coinciden con las del PDF).
 - La p. 122 pide, en aplicaciones, la *firma promocional* a la izquierda (arriba o
   abajo) y una pantalla de carga con la firma promocional dentro del horizonte
   (p. 57). La app usa la firma oficial horizontal (permitida en medios digitales,
-  p. 40) y no tiene pantalla de carga propia.
-- El archivo oficial de la firma (`assets/images/firma_ucr.png`) aún no está
-  incluido. Mientras falte, el encabezado muestra el nombre en texto, que no es
-  la firma tipográfica oficial (p. 33).
+  p. 39–40) y no tiene pantalla de carga propia. La firma promocional no está
+  publicada; se solicita a la OCI junto con el paquete de elementos gráficos.
+- Tamaño mínimo (p. 37): el escudo debe medir al menos 1,5 cm de ancho. En el
+  encabezado (56 dp) mide unos 0,8 cm en un teléfono típico; para cumplirlo la
+  firma tendría que ocupar unos 105 dp de alto. En el inicio de sesión
+  (84 dp) mide unos 1,2 cm.
 - La p. 117 recomienda que la línea de separación de 4 px sea gris; la app la
   pone en celeste UCR como acento institucional.
 
@@ -169,6 +171,8 @@ horizontales a 412 dp.
 
 - El original solo tiene Firebase para web → ejecución en Chrome con marco de
   teléfono.
+- La firma oficial no está en el repositorio del original y el paquete de la OCI
+  requiere cuenta institucional → se usó el SVG público de la OCI.
 - `flutter_localizations` exige `intl ^0.20`; el original pide `^0.19` →
   `dependency_overrides`.
 - Las reglas de Firestore exigen perfil con superior y sede, período
