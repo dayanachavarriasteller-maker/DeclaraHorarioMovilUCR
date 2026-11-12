@@ -142,7 +142,7 @@ impreso (coinciden con las del PDF).
 | Tipografía Arimo (sustituta métrica de Arial, libre). | Myriad Pro y Trueno pueden sustituirse por Arial si no están disponibles | 24–25 |
 | Pendiente recomendado: cambiar a **Trueno**, que tiene licencia abierta y el manual la indica para medios electrónicos (en `pubspec.yaml` ya está la entrada comentada). | Trueno: sitios web y dispositivos electrónicos, licencia abierta | 25 |
 | Encabezado: firma a la izquierda sobre fondo blanco, con línea de 4 px debajo para separar del contenido; barra de navegación en azul UCR. | Cintillo celeste, azul o blanco; firma a la izquierda; línea de 4 px de separación; altura mínima 56 px | 117 |
-| Firma oficial horizontal en dos líneas, a color sobre fondo blanco, escalada en proporción (`BoxFit.contain`), con espacio libre alrededor. Alto de 56 dp en el encabezado y 84 dp en el inicio de sesión. | Firma horizontal en dos líneas; uso en medios digitales; firma a color sobre fondo claro; área de protección | 36, 39–40, 49 |
+| Firma oficial horizontal en dos líneas, a color sobre fondo blanco, escalada en proporción (`BoxFit.contain`), con espacio libre alrededor. Alto de 56 dp en el encabezado y 106 dp en el inicio de sesión. | Firma horizontal en dos líneas; uso en medios digitales; firma a color sobre fondo claro; área de protección | 36, 39–40, 49 |
 | No se reconstruye ni modifica la firma: se usa el SVG oficial publicado por la OCI, convertido a PNG sin recortar ni recolorear (ver `assets/images/LEEME.txt` y `docs/identidad/`). | Firmas con proporción única e inalterable | 32–33 |
 | Diseño plano: tarjetas sin elevación, sin gradientes ni sombras decorativas. | Uso mesurado de efectos; diseños planos que prioricen el contenido | 116, 122 |
 | Controles Material de Android (botones ≥ 48 dp, selectores de fecha y hora del sistema, hoja inferior). | Botones, íconos y fondos según los lineamientos de cada sistema operativo | 122 |
@@ -157,8 +157,10 @@ impreso (coinciden con las del PDF).
   publicada; se solicita a la OCI junto con el paquete de elementos gráficos.
 - Tamaño mínimo (p. 37): el escudo debe medir al menos 1,5 cm de ancho. En el
   encabezado (56 dp) mide unos 0,8 cm en un teléfono típico; para cumplirlo la
-  firma tendría que ocupar unos 105 dp de alto. En el inicio de sesión
-  (84 dp) mide unos 1,2 cm.
+  firma tendría que ocupar unos 105 dp de alto, demasiado para un encabezado
+  fijo. En el inicio de sesión sí se cumple: la firma mide 106 dp de alto y el
+  escudo unos 96 dp ≈ 1,5 cm (1 dp ≈ 1/160 pulgada; el tamaño físico real varía
+  un poco según el teléfono).
 - La p. 117 recomienda que la línea de separación de 4 px sea gris; la app la
   pone en celeste UCR como acento institucional.
 

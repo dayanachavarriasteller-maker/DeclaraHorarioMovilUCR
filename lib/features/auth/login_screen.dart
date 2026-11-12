@@ -39,7 +39,10 @@ class _LoginScreenState extends State<LoginScreen> {
       body: SafeArea(
         child: Column(
           children: [
-            const UcrBrandBar(subtitle: 'Sede del Sur', signatureHeight: 84),
+            // 106 dp: el escudo mide ≈ 96 dp ≈ 1,5 cm, el tamaño mínimo del
+            // manual de identidad visual (p. 37). Sin subtítulo al lado para
+            // que la firma tenga su área de protección.
+            const UcrBrandBar(signatureHeight: 106),
             Expanded(
               child: SingleChildScrollView(
                 padding: const EdgeInsets.fromLTRB(24, 32, 24, 24),
@@ -58,7 +61,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         ),
                         const SizedBox(height: 6),
                         Text(
-                          'Horario y jornada de trabajo · módulo móvil',
+                          'Sede del Sur · Horario y jornada de trabajo',
                           style: theme.textTheme.bodyLarge?.copyWith(
                             color: theme.colorScheme.onSurfaceVariant,
                           ),
