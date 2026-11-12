@@ -1,0 +1,10 @@
+Firma institucional de la Universidad de Costa Rica.
+
+Descargue la firma OFICIAL (versión horizontal, a color o en blanco) desde
+https://oci.ucr.ac.cr/identidad-visual.html y guárdela aquí como:
+
+  firma_ucr.png   (para fondos blancos)
+
+La aplicación la muestra sin deformarla (BoxFit.contain, solo se escala de
+forma proporcional). Mientras el archivo no exista, el encabezado muestra solo
+el texto "Universidad de Costa Rica", sin reconstruir el identificador.

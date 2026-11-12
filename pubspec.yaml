@@ -1,0 +1,56 @@
+name: declara_horario_movil
+description: "Módulo móvil de DeclaraHorario: declaración jurada de horario y jornada de trabajo (IF0009, UCR Sede del Sur)."
+publish_to: 'none'
+version: 0.1.0+1
+
+environment:
+  sdk: ^3.13.0
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+  # Proyecto original (sistema web DeclaraHorario). Se importa como paquete
+  # para reutilizar sus modelos, reglas de dominio, repositorios y servicios
+  # sin copiar código.
+  declara_horario:
+    path: ../declara_horario/DeclaraHorario
+
+  # Las mismas versiones que usa el proyecto original.
+  firebase_core: ^3.6.0
+  firebase_auth: ^5.3.1
+  cloud_firestore: ^5.4.4
+  firebase_storage: ^12.3.2
+  provider: ^6.1.2
+  intl: ^0.20.2
+  # Textos de Material en español (selectores de fecha y hora).
+  flutter_localizations:
+    sdk: flutter
+
+# El original pide intl ^0.19.0, pero flutter_localizations exige ^0.20. Las
+# partes de intl que usa el original (DateFormat) no cambiaron entre versiones.
+dependency_overrides:
+  intl: ^0.20.2
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^6.0.0
+  fake_cloud_firestore: ^3.1.0
+
+flutter:
+  uses-material-design: true
+  assets:
+    - assets/images/
+  fonts:
+    # Sustituta métrica de Arial (Manual de Identidad Visual UCR, tipografía).
+    - family: Arimo
+      fonts:
+        - asset: assets/fonts/Arimo-Regular.ttf
+        - asset: assets/fonts/Arimo-Bold.ttf
+          weight: 700
+    # - family: Trueno
+    #   fonts:
+    #     - asset: assets/fonts/Trueno-Regular.otf
+    #     - asset: assets/fonts/Trueno-Bold.otf
+    #       weight: 700

@@ -1,0 +1,7 @@
+Arimo (Regular y Bold) - Licencia Apache 2.0 - Google Fonts.
+Arimo tiene las mismas métricas que Arial, que el Manual de Identidad Visual
+de la UCR acepta como sustituta de Trueno / Myriad Pro.
+
+Si consigue los archivos oficiales de Trueno, cópielos aquí como
+Trueno-Regular.otf y Trueno-Bold.otf y descomente la familia "Trueno" en
+pubspec.yaml: el tema la usa primero y cae en Arimo si no está.
