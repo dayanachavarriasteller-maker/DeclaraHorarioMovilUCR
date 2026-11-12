@@ -46,3 +46,6 @@ app.*.map.json
 
 # Widget Preview related
 .widget_preview/
+
+# Indicaciones del laboratorio (documento del curso, no se publica)
+Laboratorio_Desarrollo_Movil_*.pdf
