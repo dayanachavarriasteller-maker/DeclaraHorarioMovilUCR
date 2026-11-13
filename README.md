@@ -74,9 +74,14 @@ Ajustes que salieron de esta prueba (commit `0a22960`):
   sobre la barra de navegación inferior; se oculta con CSS en `web/index.html`
   (solo aparece en desarrollo).
 
-En el teléfono se recorre el flujo completo: login, crear declaración, caso
-obligatorio del traslape, corregir, guardar, reabrir el borrador, resumen y
-validar.
+En el teléfono se recorrió y se grabó el flujo completo, sin desbordes: login,
+crear declaración, datos incompletos, registro del horario en la cuadrícula,
+caso obligatorio del traslape, corregir, guardar, reabrir el borrador, resumen,
+validar y descargar el PDF.
+
+> **Ojo con `R` (hot restart)** en `flutter run -d web-server`: si se agregaron
+> archivos `.dart` nuevos falla con «Library not defined». En ese caso se detiene
+> con `q` y se vuelve a ejecutar `flutter run`.
 
 ## Estructura
 
@@ -92,15 +97,18 @@ lib/
   domain/
     declaration_draft.dart      Borrador editable ↔ Appointment / ExternalJob
     mobile_validator.dart       Validación (reglas del original + obligatorios)
+    grid_editing.dart           Cuadrícula por horas: tocar una hora y sus reglas
   features/
     auth/                       SessionState + LoginScreen
     home/home_screen.dart       R1: lista, estados, nueva declaración
-    declaration/                R2–R5: formulario en pestañas, hoja de intervalo,
-                                controlador (guardar, validar)
-    summary/summary_screen.dart R6: resumen y validación
+    declaration/                R2–R5: formulario en pestañas, cuadrícula semanal
+                                (week_grid.dart), hoja de intervalo, controlador
+                                (guardar, validar)
+    summary/summary_screen.dart R6: resumen, validación y descarga del PDF
   shared/widgets/ucr_widgets.dart  Firma, franja, StatusChip, IssueTile…
 scripts/seed-movil.js           Datos ficticios en los emuladores
-test/mobile_validator_test.dart Pruebas 01–04 y caso obligatorio
+test/mobile_validator_test.dart Pruebas 01–04, caso obligatorio, almuerzo y 6 h
+test/week_grid_test.dart       Reglas de la cuadrícula y vista a 412 dp
 ```
 
 ## Componentes reutilizados del sistema web
@@ -109,7 +117,9 @@ test/mobile_validator_test.dart Pruebas 01–04 y caso obligatorio
 |---|---|
 | Modelos (`Declaration`, `DeclarationStatus`, `Appointment`, `ExternalJob`, `TimeBlock`, `Weekday`, `VersionContent`, `HoursSummary`…) | Datos de la declaración, nombres exactos de estado |
 | `OverlapDetector`, `TimeRules`, `HoursCalculator` | Traslapes, rangos, formatos y totales |
-| `ScheduleValidator` (`checkNotEmpty`, `checkDailyLimit`, `checkWeeklyLimit`, `checkExternalWeeklyLimit`, `checkExternalHours`, `checkWorkloadMatch`) | Reglas de negocio |
+| `ScheduleValidator` (`checkNotEmpty`, `checkDailyLimit`, `checkWeeklyLimit`, `checkExternalWeeklyLimit`, `checkExternalHours`, `checkContinuousHours`, `checkWorkloadMatch`) | Reglas de negocio |
+| `ScheduleRulesConfig`, `GridCell` | Límites del horario (07:00–22:00, almuerzo, 10 h por día, 6 h seguidas) y celdas de la cuadrícula |
+| `PdfState`, `PdfBuilderService`, `DownloadPdfButton`, `BrowserFileDownloadService`, `OathTextService` | PDF de la declaración validada (vista previa sin firmas) |
 | `WorkloadCatalog` | Opciones de jornada (1/8 TC … 1 TC) |
 | `FormValidators` | Correo, identificación, obligatorios |
 | `FirebaseAuthService`, `FirestoreUserRepository` | Inicio de sesión y perfil |
@@ -127,6 +137,29 @@ borrador (prueba 04). Si la declaración estaba VALIDADA y se edita, primero se
 devuelve a BORRADOR con `reopenAsDraft` (las reglas solo permiten editar en
 BORRADOR). Validar sin errores bloqueantes llama a `markValidated`.
 
+El PDF no se guarda: «Descargar PDF» (en el Resumen, una vez VALIDADA y sin
+cambios pendientes) lo genera en el navegador con `PdfState.buildPreview` del
+original a partir de lo guardado en Firestore. Es la vista previa con la marca
+«BORRADOR»; el PDF oficial con firmas lo genera Recursos Humanos en el sistema
+web.
+
+## Registro del horario
+
+La pestaña **Horario** tiene dos vistas:
+
+- **Semana** (por omisión): cuadrícula lunes–sábado (L K M J V S) de 07:00 a
+  22:00 por **horas completas**, como la del sistema web. Se escoge el trabajo en
+  «Marcar horas de:» (cada trabajo tiene su color UCR y muestra «7 h de 10 h») y
+  se toca cada hora para marcarla; tocarla de nuevo la quita. Las horas seguidas
+  del mismo trabajo se guardan como un solo intervalo. Al tocar se aplican las
+  reglas del original y, si una no se cumple, no se marca y se explica por qué:
+  almuerzo cerrado, hora ocupada por otro trabajo, jornada sin escoger o ya
+  completa, más de 10 h en el día o más de 6 h seguidas sin descanso.
+- **Lista**: los intervalos por día. El botón «Agregar intervalo» abre una hoja
+  con listas «Desde / Hasta» (horas en punto) donde se pueden marcar varios días
+  a la vez; avisa traslapes, almuerzo y horas seguidas antes de guardar. Es la
+  vía para registrar el caso obligatorio, que la cuadrícula no deja crear.
+
 ## Validación de horarios
 
 - La hora final debe ser posterior a la inicial (la hoja de intervalo no deja
@@ -136,9 +169,16 @@ BORRADOR). Validar sin errores bloqueantes llama a `markValidated`.
   (60 min)», el intervalo se marca en rojo, «Corregir» abre ese intervalo y el
   botón «Validar» queda deshabilitado hasta corregirlo.
 - Contiguos (8–10 y 10–12) no son traslape (misma decisión del original).
+- Hora de almuerzo 12:00–13:00 excluida: un intervalo que la toque es un error
+  bloqueante. Se revisa por intervalo y para todos los trabajos (como la
+  cuadrícula del original; `checkExcludedWindow` del original solo revisa los
+  nombramientos UCR).
+- Máximo 6 horas seguidas sin una hora de descanso, sumando todos los trabajos
+  del día (`checkContinuousHours` del original; un descanso de menos de una hora
+  no corta el tramo). No se repite en un día que ya tiene traslape.
 - No se aplican las reglas que dependen de la asignación de cursos de la
-  coordinación (lecciones, categorías, franja 12–13): esa información no se
-  captura en el teléfono.
+  coordinación (lecciones, categorías): esa información no se captura en el
+  teléfono.
 
 ## Pruebas
 
@@ -148,7 +188,7 @@ BORRADOR). Validar sin errores bloqueantes llama a `markValidated`.
 | 02 Horarios traslapados | `test/…` (caso obligatorio) + app |
 | 03 Datos incompletos | `test/…`; en la app los campos con `*` muestran el error y el resumen lista lo pendiente |
 | 04 Persistencia | `test/…` (ida y vuelta del modelo) + cerrar y reabrir el borrador |
-| 05 Vista móvil | Samsung Galaxy A34 (Android) por USB, desde el navegador del teléfono; además marco de 412 dp en Chrome |
+| 05 Vista móvil | Samsung Galaxy A34 (Android) por USB, desde el navegador del teléfono (flujo completo grabado en video); además marco de 412 dp en Chrome y `test/week_grid_test.dart` |
 
 Todas con datos ficticios (`scripts/seed-movil.js`).
 
@@ -160,11 +200,12 @@ Tomadas en Chrome a 412 × 892 dp contra los emuladores:
 |---|---|
 | 01–03 | Login, inicio sin declaraciones, elección de período |
 | 04–05 | Formulario (datos) y borrador listado como BORRADOR |
-| 06–07 | Caso obligatorio: lunes 08:00–12:00 vs 11:00–14:00, conflicto marcado y hoja «Corregir intervalo» |
+| 06–07 | Caso obligatorio: lunes 08:00–12:00 vs 11:00–14:00 (traslape y almuerzo), y hoja «Corregir intervalo» con Desde/Hasta |
 | 08 | Nombramiento UCR y otra institución |
 | 09 | Resumen con el traslape y «Validar» deshabilitado (prueba 02) |
-| 10–13 | Horario corregido, resumen sin errores, VALIDADA e inicio con el estado (prueba 01) |
+| 10–13 | Cuadrícula corregida, resumen sin errores, VALIDADA con «Descargar PDF» e inicio con el estado (prueba 01) |
 | 14–15 | Campos obligatorios pendientes (prueba 03) |
+| 16 | Cuadrícula: aviso al tocar una hora cuando la jornada ya está completa |
 
 ## Identidad visual: justificación
 
@@ -183,7 +224,7 @@ impreso (coinciden con las del PDF).
 | Firma oficial horizontal en dos líneas, a color sobre fondo blanco, escalada en proporción (`BoxFit.contain`), con espacio libre alrededor. Alto de 56 dp en el encabezado y 106 dp en el inicio de sesión. | Firma horizontal en dos líneas; uso en medios digitales; firma a color sobre fondo claro; área de protección | 36, 39–40, 49 |
 | No se reconstruye ni modifica la firma: se usa el SVG oficial publicado por la OCI, convertido a PNG sin recortar ni recolorear (ver `assets/images/LEEME.txt` y `docs/identidad/`). | Firmas con proporción única e inalterable | 32–33 |
 | Diseño plano: tarjetas sin elevación, sin gradientes ni sombras decorativas. | Uso mesurado de efectos; diseños planos que prioricen el contenido | 116, 122 |
-| Controles Material de Android (botones ≥ 48 dp, selectores de fecha y hora del sistema, hoja inferior). | Botones, íconos y fondos según los lineamientos de cada sistema operativo | 122 |
+| Controles Material de Android (botones ≥ 48 dp, selectores de fecha del sistema, listas desplegables, hoja inferior). | Botones, íconos y fondos según los lineamientos de cada sistema operativo | 122 |
 | Uso de los símbolos en un proyecto académico del curso. | El estudiantado puede usar los símbolos en proyectos dentro de actividades académicas | 60 |
 
 **Diferencias con el manual que quedan pendientes**
@@ -226,16 +267,22 @@ horizontales a 412 dp.
 - Las reglas de Firestore exigen perfil con superior y sede, período
   habilitado y asignación de cursos para crear una declaración → script seed.
 - Una sola declaración por período → el seed crea dos períodos.
-- La edición por cuadrícula del original no cabe en un teléfono → lista por
-  día + hoja inferior por intervalo.
+- La cuadrícula del original (medias horas, columnas de 118 dp) no cabe en un
+  teléfono → cuadrícula propia por horas completas con columnas de unos 56 dp,
+  que entra en 412 dp sin desplazamiento horizontal, más la vista de lista.
+- Registrar el horario con selectores de hora libres era lento y permitía
+  minutos sueltos → se marca tocando horas, y la hoja usa horas en punto.
+- La regla de 6 horas seguidas y la del almuerzo no estaban en el validador
+  móvil → se agregaron con las reglas del original.
 
 ## Reflexión técnica
 
 1. **Reutilizado**: modelos, reglas de dominio, repositorios Firestore,
    autenticación, servicio de flujo, catálogo de jornadas, validadores, reglas
    de seguridad y emuladores.
-2. **Pantalla pequeña**: la cuadrícula semanal se cambió por secciones por día;
-   el formulario se dividió en cuatro pestañas; los hallazgos llevan al dato.
+2. **Pantalla pequeña**: la cuadrícula semanal se adaptó a horas completas y seis
+   columnas angostas (con vista de lista como alternativa); el formulario se
+   dividió en cuatro pestañas; los hallazgos llevan al dato.
 3. **Manual UCR**: una sola paleta y tipografía en el tema; estados con colores
    institucionales consistentes con contraste comprobado.
 4. **Firmas y aprobación**: añadir las pantallas de juramento y firma

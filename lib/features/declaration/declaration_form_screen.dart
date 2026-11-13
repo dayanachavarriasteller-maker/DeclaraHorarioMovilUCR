@@ -1,12 +1,15 @@
+import 'package:declara_horario/domain/rules/schedule_grid.dart';
 import 'package:declara_horario/domain/rules/time_rules.dart';
 import 'package:declara_horario/domain/rules/workload_catalog.dart';
 import 'package:declara_horario/models/models.dart';
 import 'package:declara_horario/shared/validators/form_validators.dart';
 import 'package:declara_horario_movil/core/navigation.dart';
 import 'package:declara_horario_movil/domain/declaration_draft.dart';
+import 'package:declara_horario_movil/domain/grid_editing.dart';
 import 'package:declara_horario_movil/domain/mobile_validator.dart';
 import 'package:declara_horario_movil/features/declaration/declaration_controller.dart';
 import 'package:declara_horario_movil/features/declaration/interval_sheet.dart';
+import 'package:declara_horario_movil/features/declaration/week_grid.dart';
 import 'package:declara_horario_movil/shared/widgets/ucr_widgets.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
@@ -48,8 +51,9 @@ class _DeclarationFormScreenState extends State<DeclarationFormScreen>
       case IssueTarget.interval:
         _tabs.animateTo(_tabSchedule);
         final key = issue.targetKeys.isEmpty ? null : issue.targetKeys.last;
-        final interval =
-            c.draft.intervals.where((i) => i.key == key).firstOrNull;
+        final interval = c.draft.intervals
+            .where((i) => i.key == key)
+            .firstOrNull;
         if (interval != null) {
           await showIntervalSheet(context, c, interval: interval);
         }
@@ -60,11 +64,15 @@ class _DeclarationFormScreenState extends State<DeclarationFormScreen>
     final c = context.read<DeclarationController>();
     final messenger = ScaffoldMessenger.of(context);
     final ok = await c.saveDraft();
-    messenger.showSnackBar(SnackBar(
-      content: Text(ok
-          ? 'Borrador guardado.'
-          : c.error ?? 'No se pudo guardar el borrador.'),
-    ));
+    messenger.showSnackBar(
+      SnackBar(
+        content: Text(
+          ok
+              ? 'Borrador guardado.'
+              : c.error ?? 'No se pudo guardar el borrador.',
+        ),
+      ),
+    );
   }
 
   Future<void> _summary() async {
@@ -81,7 +89,8 @@ class _DeclarationFormScreenState extends State<DeclarationFormScreen>
       builder: (context) => AlertDialog(
         title: const Text('Cambios sin guardar'),
         content: const Text(
-            '¿Desea salir sin guardar el borrador? Se perderán los cambios.'),
+          '¿Desea salir sin guardar el borrador? Se perderán los cambios.',
+        ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
@@ -156,7 +165,8 @@ class _DeclarationFormScreenState extends State<DeclarationFormScreen>
               color: Theme.of(context).colorScheme.surface,
               border: Border(
                 top: BorderSide(
-                    color: Theme.of(context).colorScheme.outlineVariant),
+                  color: Theme.of(context).colorScheme.outlineVariant,
+                ),
               ),
             ),
             padding: const EdgeInsets.fromLTRB(16, 10, 16, 10),
@@ -217,7 +227,8 @@ class _GeneralTab extends StatelessWidget {
     final c = context.watch<DeclarationController>();
     final d = c.draft;
     final format = DateFormat('d MMM y', 'es');
-    final issues = c.validation?.issues
+    final issues =
+        c.validation?.issues
             .where((i) => i.target == IssueTarget.general)
             .toList() ??
         const <MobileIssue>[];
@@ -274,7 +285,7 @@ class _GeneralTab extends StatelessWidget {
                   c.period == null
                       ? ''
                       : '${c.period!.name}\n'
-                          '${format.format(c.periodStart)} – ${format.format(c.periodEnd)}',
+                            '${format.format(c.periodStart)} – ${format.format(c.periodEnd)}',
                 ),
               ],
             ),
@@ -304,7 +315,8 @@ class _JobsTab extends StatelessWidget {
   Widget build(BuildContext context) {
     final c = context.watch<DeclarationController>();
     final d = c.draft;
-    final general = c.validation?.issues
+    final general =
+        c.validation?.issues
             .where((i) => i.target == IssueTarget.job && i.targetKeys.isEmpty)
             .toList() ??
         const <MobileIssue>[];
@@ -333,8 +345,9 @@ class _JobsTab extends StatelessWidget {
         ),
         if (d.externalJobs.isEmpty)
           const _EmptyHint(
-              'Si labora en otra institución pública, privada o fundación, '
-              'agréguela aquí.'),
+            'Si labora en otra institución pública, privada o fundación, '
+            'agréguela aquí.',
+          ),
         for (final job in d.externalJobs) _JobCard(job: job),
         if (general.isNotEmpty) const SizedBox(height: 8),
         for (final i in general)
@@ -355,9 +368,11 @@ class _JobCard extends StatelessWidget {
     final theme = Theme.of(context);
     final format = DateFormat('d MMM y', 'es');
     final isUcr = job.kind == JobKind.ucr;
-    final options =
-        isUcr ? WorkloadCatalog.options : WorkloadCatalog.externalOptions;
-    final issues = c.validation?.issues
+    final options = isUcr
+        ? WorkloadCatalog.options
+        : WorkloadCatalog.externalOptions;
+    final issues =
+        c.validation?.issues
             .where((i) => i.targetKeys.contains(job.key))
             .where((i) => i.target == IssueTarget.job)
             .toList() ??
@@ -380,8 +395,10 @@ class _JobCard extends StatelessWidget {
             children: [
               Row(
                 children: [
-                  Icon(isUcr ? Icons.school_outlined : Icons.business_outlined,
-                      color: theme.colorScheme.primary),
+                  Icon(
+                    isUcr ? Icons.school_outlined : Icons.business_outlined,
+                    color: theme.colorScheme.primary,
+                  ),
                   const SizedBox(width: 8),
                   Expanded(
                     child: Text(
@@ -418,8 +435,7 @@ class _JobCard extends StatelessWidget {
                     TextFormField(
                       key: ValueKey('${job.key}-position'),
                       initialValue: job.position,
-                      decoration:
-                          const InputDecoration(labelText: 'Puesto *'),
+                      decoration: const InputDecoration(labelText: 'Puesto *'),
                       autovalidateMode: AutovalidateMode.always,
                       validator: FormValidators.notEmpty,
                       onChanged: (v) => set(() => job.position = v),
@@ -432,7 +448,8 @@ class _JobCard extends StatelessWidget {
                           : null,
                       isExpanded: true,
                       decoration: const InputDecoration(
-                          labelText: 'Tipo de jornada *'),
+                        labelText: 'Tipo de jornada *',
+                      ),
                       autovalidateMode: AutovalidateMode.always,
                       validator: (v) =>
                           v == null ? 'Seleccione la jornada.' : null,
@@ -441,7 +458,8 @@ class _JobCard extends StatelessWidget {
                           DropdownMenuItem(
                             value: o.label,
                             child: Text(
-                                '${o.label} · ${TimeRules.hoursLabel(o.weeklyMinutes)} semanales'),
+                              '${o.label} · ${TimeRules.hoursLabel(o.weeklyMinutes)} semanales',
+                            ),
                           ),
                       ],
                       onChanged: (v) => set(() => job.workload = v ?? ''),
@@ -453,20 +471,26 @@ class _JobCard extends StatelessWidget {
                         initialValue: job.institutionType,
                         isExpanded: true,
                         decoration: const InputDecoration(
-                            labelText: 'Tipo de institución *'),
+                          labelText: 'Tipo de institución *',
+                        ),
                         items: const [
                           DropdownMenuItem(
-                              value: InstitutionType.public,
-                              child: Text('Pública')),
+                            value: InstitutionType.public,
+                            child: Text('Pública'),
+                          ),
                           DropdownMenuItem(
-                              value: InstitutionType.private,
-                              child: Text('Privada')),
+                            value: InstitutionType.private,
+                            child: Text('Privada'),
+                          ),
                           DropdownMenuItem(
-                              value: InstitutionType.foundation,
-                              child: Text('Fundación')),
+                            value: InstitutionType.foundation,
+                            child: Text('Fundación'),
+                          ),
                         ],
-                        onChanged: (v) => set(() =>
-                            job.institutionType = v ?? InstitutionType.public),
+                        onChanged: (v) => set(
+                          () =>
+                              job.institutionType = v ?? InstitutionType.public,
+                        ),
                       ),
                     ],
                     const SizedBox(height: 12),
@@ -518,15 +542,19 @@ class _JobCard extends StatelessWidget {
   }
 
   Future<void> _confirmDelete(
-      BuildContext context, DeclarationController c) async {
+    BuildContext context,
+    DeclarationController c,
+  ) async {
     final count = c.draft.intervalsOf(job.key).length;
     final ok = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
         title: Text('¿Eliminar ${job.displayName}?'),
-        content: Text(count == 0
-            ? 'Se eliminará al guardar el borrador.'
-            : 'También se eliminarán sus $count intervalos de horario.'),
+        content: Text(
+          count == 0
+              ? 'Se eliminará al guardar el borrador.'
+              : 'También se eliminarán sus $count intervalos de horario.',
+        ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
@@ -582,8 +610,51 @@ class _DateField extends StatelessWidget {
 
 // ----------------------------------------------------------------- Horario
 
-class _ScheduleTab extends StatelessWidget {
+/// Vista del horario: cuadrícula semanal o lista por día.
+enum _ScheduleView { week, list }
+
+class _ScheduleTab extends StatefulWidget {
   const _ScheduleTab();
+
+  @override
+  State<_ScheduleTab> createState() => _ScheduleTabState();
+}
+
+class _ScheduleTabState extends State<_ScheduleTab> {
+  _ScheduleView _view = _ScheduleView.week;
+  String? _selectedJob;
+
+  /// Trabajo con el que se marca la cuadrícula (el primero por omisión).
+  String? _jobKey(DeclarationDraft d) {
+    if (d.jobs.any((j) => j.key == _selectedJob)) return _selectedJob;
+    return d.jobs.isEmpty ? null : d.jobs.first.key;
+  }
+
+  void _tapCell(DeclarationController c, GridCell cell) {
+    final messenger = ScaffoldMessenger.of(context);
+    final jobKey = _jobKey(c.draft);
+    if (jobKey == null) {
+      messenger
+        ..hideCurrentSnackBar()
+        ..showSnackBar(
+          const SnackBar(
+            content: Text('Primero agregue un trabajo en «Trabajo».'),
+          ),
+        );
+      return;
+    }
+    switch (GridEditing.tap(c.draft, jobKey, cell)) {
+      case GridTapChanged():
+        messenger.hideCurrentSnackBar();
+        c.changed();
+      case GridTapBlocked(:final message):
+        messenger
+          ..hideCurrentSnackBar()
+          ..showSnackBar(SnackBar(content: Text(message)));
+      case GridTapConflict(:final interval):
+        showIntervalSheet(context, c, interval: interval);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -594,10 +665,13 @@ class _ScheduleTab extends StatelessWidget {
       for (final i in c.validation?.blocking ?? const <MobileIssue>[])
         if (i.target == IssueTarget.interval) ...i.targetKeys,
     };
-    final scheduleIssues = c.validation?.issues
-            .where((i) =>
-                i.target == IssueTarget.interval ||
-                i.target == IssueTarget.schedule)
+    final scheduleIssues =
+        c.validation?.issues
+            .where(
+              (i) =>
+                  i.target == IssueTarget.interval ||
+                  i.target == IssueTarget.schedule,
+            )
             .toList() ??
         const <MobileIssue>[];
 
@@ -615,8 +689,10 @@ class _ScheduleTab extends StatelessWidget {
                     Icon(Icons.schedule, color: theme.colorScheme.primary),
                     const SizedBox(width: 12),
                     Expanded(
-                      child: Text('Total registrado',
-                          style: theme.textTheme.titleSmall),
+                      child: Text(
+                        'Total registrado',
+                        style: theme.textTheme.titleSmall,
+                      ),
                     ),
                     Text(
                       TimeRules.hoursLabel(d.totalMinutes),
@@ -631,7 +707,8 @@ class _ScheduleTab extends StatelessWidget {
               IssueTile(
                 message: issue.message,
                 blocking: issue.blocking,
-                onFix: issue.target == IssueTarget.interval &&
+                onFix:
+                    issue.target == IssueTarget.interval &&
                         issue.targetKeys.isNotEmpty
                     ? () {
                         final interval = d.intervals
@@ -644,10 +721,50 @@ class _ScheduleTab extends StatelessWidget {
                     : null,
               ),
             if (d.jobs.isEmpty)
-              const _EmptyHint('Primero agregue un nombramiento en la pestaña '
-                  '«Trabajo»; luego registre aquí su horario.'),
-            for (final day in Weekday.values)
-              _DaySection(day: day, conflictKeys: conflictKeys),
+              const _EmptyHint(
+                'Primero agregue un nombramiento en la pestaña '
+                '«Trabajo»; luego registre aquí su horario.',
+              ),
+            SegmentedButton<_ScheduleView>(
+              segments: const [
+                ButtonSegment(
+                  value: _ScheduleView.week,
+                  icon: Icon(Icons.calendar_view_week),
+                  label: Text('Semana'),
+                ),
+                ButtonSegment(
+                  value: _ScheduleView.list,
+                  icon: Icon(Icons.view_agenda_outlined),
+                  label: Text('Lista'),
+                ),
+              ],
+              selected: {_view},
+              onSelectionChanged: (v) => setState(() => _view = v.first),
+            ),
+            const SizedBox(height: 12),
+            if (_view == _ScheduleView.week) ...[
+              if (d.jobs.isNotEmpty) ...[
+                WeekGridJobPicker(
+                  draft: d,
+                  selectedJobKey: _jobKey(d),
+                  onSelected: (k) => setState(() => _selectedJob = k),
+                ),
+                const SizedBox(height: 6),
+                Text(
+                  'Toque cada hora para marcarla; tóquela de nuevo '
+                  'para quitarla.',
+                  style: theme.textTheme.bodySmall,
+                ),
+                const SizedBox(height: 8),
+              ],
+              WeekGrid(
+                draft: d,
+                selectedJobKey: _jobKey(d),
+                onCellTap: (cell) => _tapCell(c, cell),
+              ),
+            ] else
+              for (final day in Weekday.values)
+                _DaySection(day: day, conflictKeys: conflictKeys),
           ],
         ),
         Positioned(
@@ -800,12 +917,11 @@ class _EmptyHint extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Padding(
-        padding: const EdgeInsets.only(bottom: 12),
-        child: Text(
-          text,
-          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                color: Theme.of(context).colorScheme.onSurfaceVariant,
-              ),
-        ),
-      );
+    padding: const EdgeInsets.only(bottom: 12),
+    child: Text(
+      text,
+      style: Theme.of(context).textTheme.bodyMedium
+          ?.copyWith(color: Theme.of(context).colorScheme.onSurfaceVariant),
+    ),
+  );
 }

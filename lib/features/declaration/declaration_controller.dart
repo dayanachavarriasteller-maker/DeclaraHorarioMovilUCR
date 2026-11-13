@@ -72,9 +72,9 @@ class DeclarationController extends ChangeNotifier {
   DateTime get periodEnd => period?.endDate ?? DateTime(2026, 12, 31);
 
   VersionRef get _ref => VersionRef(
-        declarationId: declarationId,
-        versionId: declaration!.currentVersionId,
-      );
+    declarationId: declarationId,
+    versionId: declaration!.currentVersionId,
+  );
 
   /// Carga la declaración, su versión actual y su período (prueba 04:
   /// recuperar el borrador al reabrirlo).
@@ -146,6 +146,12 @@ class DeclarationController extends ChangeNotifier {
     changed();
   }
 
+  /// Agrega de una vez el mismo horario en varios días.
+  void addIntervals(Iterable<DraftInterval> items) {
+    draft.intervals.addAll(items);
+    changed();
+  }
+
   void removeInterval(DraftInterval interval) {
     draft.intervals.remove(interval);
     changed();
@@ -192,10 +198,7 @@ class DeclarationController extends ChangeNotifier {
 
   Future<void> _persist() async {
     if (declaration!.status != DeclarationStatus.borrador) {
-      await workflow.reopenAsDraft(
-        declarationId: declarationId,
-        actor: actor,
-      );
+      await workflow.reopenAsDraft(declarationId: declarationId, actor: actor);
     }
     final ref = _ref;
 
@@ -210,8 +213,10 @@ class DeclarationController extends ChangeNotifier {
 
     // Se guardan con el id de Firestore (vacío = nuevo) y se recuerda el id
     // asignado para que el siguiente guardado actualice en vez de duplicar.
-    final appointments =
-        draft.toAppointments(periodStart: periodStart, periodEnd: periodEnd);
+    final appointments = draft.toAppointments(
+      periodStart: periodStart,
+      periodEnd: periodEnd,
+    );
     final ucrJobs = draft.ucrJobs;
     for (var i = 0; i < ucrJobs.length; i++) {
       final job = ucrJobs[i];
@@ -230,8 +235,10 @@ class DeclarationController extends ChangeNotifier {
       );
     }
 
-    final externals =
-        draft.toExternalJobs(periodStart: periodStart, periodEnd: periodEnd);
+    final externals = draft.toExternalJobs(
+      periodStart: periodStart,
+      periodEnd: periodEnd,
+    );
     final extJobs = draft.externalJobs;
     for (var i = 0; i < extJobs.length; i++) {
       final job = extJobs[i];
@@ -262,8 +269,8 @@ class DeclarationController extends ChangeNotifier {
     await firestore
         .doc(FirestorePaths.version(declarationId, ref.versionId))
         .update(<String, Object>{
-      VersionFields.declarantSnapshot: draft.toSnapshot().toMap(),
-    });
+          VersionFields.declarantSnapshot: draft.toSnapshot().toMap(),
+        });
 
     declaration = await declarations.getById(declarationId);
     dirty = false;

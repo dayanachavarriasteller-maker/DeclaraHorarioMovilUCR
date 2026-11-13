@@ -12,6 +12,7 @@ class UcrStatusColors extends ThemeExtension<UcrStatusColors> {
     required this.other,
     required this.onStatus,
     required this.accentStripe,
+    required this.jobBlocks,
   });
 
   /// BORRADOR (amarillo UCR).
@@ -32,6 +33,15 @@ class UcrStatusColors extends ThemeExtension<UcrStatusColors> {
   /// Franja celeste institucional bajo el encabezado.
   final Color accentStripe;
 
+  /// Fondo y texto de los bloques de la cuadrícula semanal, uno por trabajo
+  /// (se repiten si hay más trabajos). Solo colores principales UCR, cada
+  /// uno con un texto que alcanza 4,5:1.
+  final List<({Color fill, Color text})> jobBlocks;
+
+  /// Colores del trabajo en la posición [index].
+  ({Color fill, Color text}) jobBlock(int index) =>
+      jobBlocks[index % jobBlocks.length];
+
   static const UcrStatusColors ucr = UcrStatusColors(
     draft: UcrColors.amarillo,
     validated: UcrColors.verde,
@@ -39,6 +49,12 @@ class UcrStatusColors extends ThemeExtension<UcrStatusColors> {
     other: Color(0xFFDCE6F0),
     onStatus: UcrColors.ink,
     accentStripe: UcrColors.celeste,
+    jobBlocks: <({Color fill, Color text})>[
+      (fill: UcrColors.azul, text: UcrColors.blanco),
+      (fill: UcrColors.celeste, text: UcrColors.ink),
+      (fill: UcrColors.verde, text: UcrColors.ink),
+      (fill: UcrColors.amarillo, text: UcrColors.ink),
+    ],
   );
 
   @override
@@ -49,15 +65,16 @@ class UcrStatusColors extends ThemeExtension<UcrStatusColors> {
     Color? other,
     Color? onStatus,
     Color? accentStripe,
-  }) =>
-      UcrStatusColors(
-        draft: draft ?? this.draft,
-        validated: validated ?? this.validated,
-        pending: pending ?? this.pending,
-        other: other ?? this.other,
-        onStatus: onStatus ?? this.onStatus,
-        accentStripe: accentStripe ?? this.accentStripe,
-      );
+    List<({Color fill, Color text})>? jobBlocks,
+  }) => UcrStatusColors(
+    draft: draft ?? this.draft,
+    validated: validated ?? this.validated,
+    pending: pending ?? this.pending,
+    other: other ?? this.other,
+    onStatus: onStatus ?? this.onStatus,
+    accentStripe: accentStripe ?? this.accentStripe,
+    jobBlocks: jobBlocks ?? this.jobBlocks,
+  );
 
   @override
   UcrStatusColors lerp(UcrStatusColors? other, double t) => this;

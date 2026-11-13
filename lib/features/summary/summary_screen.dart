@@ -1,4 +1,5 @@
 import 'package:declara_horario/domain/rules/time_rules.dart';
+import 'package:declara_horario/features/pdf/widgets/download_pdf_button.dart';
 import 'package:declara_horario/models/models.dart';
 import 'package:declara_horario_movil/domain/declaration_draft.dart';
 import 'package:declara_horario_movil/features/declaration/declaration_controller.dart';
@@ -21,18 +22,24 @@ class SummaryScreen extends StatelessWidget {
     final messenger = ScaffoldMessenger.of(context);
     final result = await c.validateAndMark();
     if (result == null) {
-      messenger.showSnackBar(SnackBar(
-        content: Text(c.error ?? 'No se pudo validar.'),
-      ));
+      messenger.showSnackBar(
+        SnackBar(content: Text(c.error ?? 'No se pudo validar.')),
+      );
     } else if (result.hasBlocking) {
-      messenger.showSnackBar(const SnackBar(
-        content: Text('La declaración tiene problemas por corregir; no se '
-            'marcó como VALIDADA.'),
-      ));
+      messenger.showSnackBar(
+        const SnackBar(
+          content: Text(
+            'La declaración tiene problemas por corregir; no se '
+            'marcó como VALIDADA.',
+          ),
+        ),
+      );
     } else {
-      messenger.showSnackBar(const SnackBar(
-        content: Text('Declaración guardada y marcada como VALIDADA.'),
-      ));
+      messenger.showSnackBar(
+        const SnackBar(
+          content: Text('Declaración guardada y marcada como VALIDADA.'),
+        ),
+      );
     }
   }
 
@@ -46,6 +53,13 @@ class SummaryScreen extends StatelessWidget {
     final canEdit = c.editable;
     // Si se abrió desde el formulario, «Corregir» vuelve a él con el dato.
     final fromForm = Navigator.of(context).canPop() && canEdit;
+    // El PDF existe a partir de VALIDADA (`PdfState.buildPreview`) y debe
+    // reflejar lo guardado, así que no se ofrece con cambios pendientes.
+    final canDownload =
+        c.declaration != null &&
+        !c.dirty &&
+        c.status != DeclarationStatus.borrador &&
+        c.status != DeclarationStatus.devuelta;
 
     return Scaffold(
       appBar: AppBar(title: const Text('Resumen de la declaración')),
@@ -63,7 +77,10 @@ class SummaryScreen extends StatelessWidget {
                   Row(
                     children: [
                       Expanded(
-                        child: Text('Estado', style: theme.textTheme.titleSmall),
+                        child: Text(
+                          'Estado',
+                          style: theme.textTheme.titleSmall,
+                        ),
                       ),
                       StatusChip(status: c.status!),
                     ],
@@ -85,7 +102,8 @@ class SummaryScreen extends StatelessWidget {
             IssueTile(
               blocking: false,
               success: true,
-              message: 'Sin problemas: horario sin traslapes y rangos '
+              message:
+                  'Sin problemas: horario sin traslapes y rangos '
                   'correctos.',
             )
           else
@@ -135,8 +153,10 @@ class SummaryScreen extends StatelessWidget {
                         style: theme.textTheme.titleSmall,
                       ),
                       const SizedBox(height: 4),
-                      InfoRow(job.kind == JobKind.ucr ? 'Lugar' : 'Institución',
-                          job.name),
+                      InfoRow(
+                        job.kind == JobKind.ucr ? 'Lugar' : 'Institución',
+                        job.name,
+                      ),
                       InfoRow('Puesto', job.position),
                       InfoRow('Jornada', job.workload),
                       InfoRow(
@@ -144,14 +164,16 @@ class SummaryScreen extends StatelessWidget {
                         job.kind == JobKind.ucr
                             ? '${format.format(c.periodStart)} – ${format.format(c.periodEnd)}'
                             : '${job.startDate == null ? '?' : format.format(job.startDate!)} – '
-                                '${job.endDate == null ? '?' : format.format(job.endDate!)}',
+                                  '${job.endDate == null ? '?' : format.format(job.endDate!)}',
                       ),
                       InfoRow(
                         'Horas',
                         job.weeklyMinutes == null
                             ? TimeRules.hoursLabel(d.minutesOf(job.key))
                             : TimeRules.hoursOf(
-                                d.minutesOf(job.key), job.weeklyMinutes!),
+                                d.minutesOf(job.key),
+                                job.weeklyMinutes!,
+                              ),
                       ),
                     ],
                   ),
@@ -173,11 +195,15 @@ class SummaryScreen extends StatelessWidget {
                   Row(
                     children: [
                       Expanded(
-                        child: Text('Horas totales registradas',
-                            style: theme.textTheme.titleSmall),
+                        child: Text(
+                          'Horas totales registradas',
+                          style: theme.textTheme.titleSmall,
+                        ),
                       ),
-                      Text(TimeRules.hoursLabel(d.totalMinutes),
-                          style: theme.textTheme.titleLarge),
+                      Text(
+                        TimeRules.hoursLabel(d.totalMinutes),
+                        style: theme.textTheme.titleLarge,
+                      ),
                     ],
                   ),
                   if (v != null && d.ucrJobs.isNotEmpty) ...[
@@ -222,7 +248,18 @@ class SummaryScreen extends StatelessWidget {
           ),
         ],
       ),
-      bottomNavigationBar: !canEdit
+      bottomNavigationBar: canDownload && !canEdit
+          ? SafeArea(
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(16, 8, 16, 12),
+                child: DownloadPdfButton(
+                  declaration: c.declaration!,
+                  label: 'Descargar PDF',
+                  filled: true,
+                ),
+              ),
+            )
+          : !canEdit
           ? null
           : SafeArea(
               child: Padding(
@@ -231,6 +268,7 @@ class SummaryScreen extends StatelessWidget {
                   children: [
                     if (fromForm) ...[
                       Expanded(
+                        flex: canDownload ? 2 : 1,
                         child: OutlinedButton.icon(
                           onPressed: () => Navigator.pop(context),
                           icon: const Icon(Icons.edit_outlined),
@@ -239,18 +277,31 @@ class SummaryScreen extends StatelessWidget {
                       ),
                       const SizedBox(width: 12),
                     ],
-                    Expanded(
-                      child: FilledButton.icon(
-                        onPressed: c.busy ||
-                                (v?.hasBlocking ?? true) ||
-                                (c.status == DeclarationStatus.validada &&
-                                    !c.dirty)
-                            ? null
-                            : () => _validate(context),
-                        icon: const Icon(Icons.verified_outlined),
-                        label: const Text('Validar'),
+                    if (canDownload)
+                      // Ya validada: el PDF del original (vista previa sin
+                      // firmas) reemplaza al botón Validar.
+                      Expanded(
+                        flex: 3,
+                        child: DownloadPdfButton(
+                          declaration: c.declaration!,
+                          label: 'Descargar PDF',
+                          filled: true,
+                        ),
+                      )
+                    else
+                      Expanded(
+                        child: FilledButton.icon(
+                          onPressed:
+                              c.busy ||
+                                  (v?.hasBlocking ?? true) ||
+                                  (c.status == DeclarationStatus.validada &&
+                                      !c.dirty)
+                              ? null
+                              : () => _validate(context),
+                          icon: const Icon(Icons.verified_outlined),
+                          label: const Text('Validar'),
+                        ),
                       ),
-                    ),
                   ],
                 ),
               ),
@@ -258,17 +309,19 @@ class SummaryScreen extends StatelessWidget {
     );
   }
 
-  List<Widget> _dayRows(
-      BuildContext context, DeclarationDraft d, Weekday day) {
+  List<Widget> _dayRows(BuildContext context, DeclarationDraft d, Weekday day) {
     final items = d.sortedIntervals.where((i) => i.day == day).toList();
     if (items.isEmpty) return const <Widget>[];
     final theme = Theme.of(context);
     return <Widget>[
       Padding(
         padding: const EdgeInsets.only(top: 8, bottom: 2),
-        child: Text(day.title,
-            style: theme.textTheme.labelLarge
-                ?.copyWith(color: theme.colorScheme.primary)),
+        child: Text(
+          day.title,
+          style: theme.textTheme.labelLarge?.copyWith(
+            color: theme.colorScheme.primary,
+          ),
+        ),
       ),
       for (final i in items)
         Padding(
@@ -309,14 +362,15 @@ class SummaryScreen extends StatelessWidget {
             'sistema web (aún NO está firmada).',
       DeclarationStatus.pendienteFirmaDeclarante =>
         'Pendiente de la firma de la persona declarante en el sistema web.',
-      _ => 'La declaración avanzó en el flujo de firmas y revisión; aquí '
-          'solo se puede consultar.',
+      _ =>
+        'La declaración avanzó en el flujo de firmas y revisión; aquí '
+            'solo se puede consultar.',
     };
   }
 
   static String _typeLabel(InstitutionType type) => switch (type) {
-        InstitutionType.public => 'pública',
-        InstitutionType.private => 'privada',
-        InstitutionType.foundation => 'fundación',
-      };
+    InstitutionType.public => 'pública',
+    InstitutionType.private => 'privada',
+    InstitutionType.foundation => 'fundación',
+  };
 }
