@@ -192,6 +192,16 @@ La pestaña **Horario** tiene dos vistas:
 
 Todas con datos ficticios (`scripts/seed-movil.js`).
 
+### Video de demostración
+
+[`docs/video/video_declaraciones_juradas.mp4`](docs/video/video_declaraciones_juradas.mp4)
+(3 min 06 s, 15,4 MB): recorrido completo en el Samsung Galaxy A34 por USB, con
+datos ficticios. Login, nueva declaración, datos incompletos, información
+laboral, horario en la cuadrícula, caso obligatorio del traslape (lunes
+08:00–12:00 y 11:00–14:00), corrección, guardar y reabrir el borrador, resumen,
+validar y descargar el PDF. El guion pedía 2 minutos; el video quedó en
+3 min 06 s.
+
 ### Evidencias visuales (`docs/capturas/`)
 
 Tomadas en Chrome a 412 × 892 dp contra los emuladores:
