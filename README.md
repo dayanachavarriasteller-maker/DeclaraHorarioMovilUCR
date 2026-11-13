@@ -4,6 +4,12 @@ Módulo móvil (Flutter + Dart) del Sistema de Declaraciones Juradas de Horario 
 Jornada de Trabajo. Laboratorio de Desarrollo Móvil, IF0009 Desarrollo de
 Software IV.
 
+## Integrantes
+
+- Keity Chavarría Steller
+- Cristopher Mora Salas
+- Lucía Palacio Ayerdis
+
 No es una plataforma nueva: importa el proyecto original
 (`../declara_horario/DeclaraHorario`) como paquete Dart y reutiliza sus modelos,
 reglas, repositorios, autenticación y backend de Firebase.
